@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <string.h>
 
 int main(int argc, char* argv[argc+1]) {
   if(argc != 2) {
@@ -53,6 +52,7 @@ int main(int argc, char* argv[argc+1]) {
     freq = freq + change;
     count++;
 
+    // TODO: a hash table would be way faster.
     for(int i = 0; i < hist_pos; i++) {
       if(freq == freq_hist[i]) {
         printf("repeat: %d\n", freq);
