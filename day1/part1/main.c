@@ -15,49 +15,20 @@ int main(int argc, char* argv[argc+1]) {
     exit(1);
   }
 
-  char* input = NULL;
-  if(fseek(fd, 0L, SEEK_END)) {
-    printf("Seek error.\n");
-    exit(1);
-  }
+  size_t num_read = 0;
+  size_t len = 0;
+  char* line = NULL;
+  int freq = 0;
 
-  long sz = ftell(fd);
-  if(sz == -1) {
-    printf("error\n");
-    exit(1);
-  }
-
-  input = malloc(sizeof(char) * (sz + 1));
-  fseek(fd, 0L, SEEK_SET);
-
-  long newLen = fread(input, sizeof(char), sz, fd);
-  if(ferror(fd) != 0){
-    printf("Error in read\n");
-    exit(1);
-  }
-  else {
-    input[newLen++] = '\0';
-  }
-  fclose(fd);
-
-  
-
-  char* line = strtok(input, "\n");
-  long total = 0;
-  while(line != NULL) {
-
-    if(strstr(line, "+")){
-      total += atol(line+1);
+  while((num_read = getline(&line, &len, fd)) != -1) {
+    if(line[0] == '+') {
+      freq += atoi(line + 1);
     }
-    else if(strstr(line, "-")){
-      total -= atol(line+1);
+    else if(line[0] == '-') {
+      freq -= atoi(line + 1);
     }
-
-    line = strtok(NULL, "\n");
   }
 
-  printf("Total: %ld\n", total);
-
-  free(input);
+  printf("Frequency: %d\n", freq);
   return 0;
 }
