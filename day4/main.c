@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <glib.h>
 
+#define HOURS_SIZE 60
+
 enum ACTION { START, ASLEEP, WAKE };
 
 typedef struct log_t log_t;
@@ -61,6 +63,69 @@ guard_t* find_max_asleep(log_t** logs, size_t size){
   current = g_hash_table_lookup(guard_table, &sleepy_guard_id);
   g_hash_table_destroy(guard_table);
   return current;
+}
+
+void destroy_value(void* value){
+  free(value);
+}
+
+void find_most_asleep_minute(log_t** logs, size_t size){
+  GHashTable* guard_table =
+    g_hash_table_new_full(g_int_hash, g_int_equal, NULL, destroy_value);
+
+  int* hours = NULL;
+  for(int i = 0; i < size; i++){
+
+    if(logs[i]->guard_id != 0){
+      hours = (int*) g_hash_table_lookup(guard_table, &(logs[i]->guard_id));
+
+      if(!hours){
+        // new guard
+        hours = calloc(HOURS_SIZE, sizeof(int));
+        g_hash_table_insert(guard_table, &(logs[i]->guard_id), hours);
+      }
+    }
+
+    if(logs[i]->guard_action == WAKE && i != 0){
+      log_t* last_log = logs[i-1];
+
+      int j = last_log->tstmp->tm_min;
+      int target = logs[i]->tstmp->tm_min;
+      while(j != target){
+
+        hours[j] += 1;
+
+        j++;
+        if(j >= 60){
+          j = 0;
+        }
+      }
+    }
+  }
+
+  GHashTableIter itr;
+  g_hash_table_iter_init(&itr, guard_table);
+  int* guard_id;
+  int max_min = 0;
+  int max_val = 0;
+  int max_id = 0;
+  int* current;
+
+  while(g_hash_table_iter_next(&itr, (void**) &guard_id, (void **) &current)){
+    for(int i = 0; i < HOURS_SIZE; i++){
+      if(current[i] > max_val){
+        max_val = current[i];
+        max_id = *guard_id;
+        max_min = i;
+      }
+    }
+  }
+
+  printf("Solution 2\n");
+  printf("Guard id: %d slept most on minute: %d, with: %d minutes slept."
+         " solution: %d\n",
+         max_id, max_min, max_val, max_id * max_min);
+  g_hash_table_destroy(guard_table);
 }
 
 int compare_tm(const void* t1, const void* t2){
@@ -134,6 +199,7 @@ int main(int argc, char* argv[argc+1]){
   qsort(logs, pos, sizeof(log_t*), compare_tm);
   guard_t* sleepyGuard = find_max_asleep(logs, pos);
 
+  printf("Solution 1\n");
   printf("Sleepy Guard id: %d\n", sleepyGuard->id);
 
   // found the sleepiest guard now we want to find the
@@ -164,6 +230,8 @@ int main(int argc, char* argv[argc+1]){
 
   printf("Most often asleep on minute: %d, so id * min = %d\n",
          most_often, most_often * sleepyGuard->id);
+
+  find_most_asleep_minute(logs, pos);
 
   for(int i = 0; i < pos; i++){
     free(logs[i]->tstmp);
