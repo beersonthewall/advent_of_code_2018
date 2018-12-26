@@ -41,6 +41,15 @@ void reduce(char* polymer){
   }
 }
 
+void remove_letter(char* polymer, char letter){
+  char *src, *dst;
+  for (src = dst = polymer; *src != '\0'; src++) {
+    *dst = *src;
+    if (*dst != letter) dst++;
+  }
+  *dst = '\0';
+}
+
 int main(int argc, char* argv[argc+1]){
   if(argc != 2) {
     printf("Enter filename as program args.\n");
@@ -63,11 +72,42 @@ int main(int argc, char* argv[argc+1]){
   // just overwrite the ending newline.
   polymer[size-1] = 0;
 
+  char* og = malloc(strlen(polymer) + 1);
+  strcpy(og, polymer);
+
   reduce(polymer);
 
   printf("Polymer size: %ld\n", strlen(polymer));
   printf("%s\n", polymer);
 
+
   free(polymer);
+  polymer = malloc(strlen(og) + 1);
+  strcpy(polymer, og);
+
+  remove_letter(polymer, 'a');
+  remove_letter(polymer, 'A');
+  reduce(polymer);
+  int shortest = strlen(polymer);
+  for(char letter = 98; letter < 123; letter++){
+    free(polymer);
+    polymer = malloc(strlen(og) + 1);
+    strcpy(polymer, og);
+
+    // remove lower case and upper case.
+    remove_letter(polymer, letter);
+    remove_letter(polymer, letter - 32);
+
+    reduce(polymer);
+
+    if(strlen(polymer) < shortest){
+      shortest = strlen(polymer);
+    }
+  }
+
+  printf("Shortest size: %d\n", shortest);
+
+  free(polymer);
+  free(og);
   fclose(fd);
 }
