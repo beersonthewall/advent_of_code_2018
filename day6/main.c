@@ -129,7 +129,24 @@ int main(int argc, char* argv[argc+1]){
     }
   }
 
+  size_t safe_area_size = 0;
+  for(int i = 0; i < x_max; i++){
+    for(int j = 0; j < y_max; j++){
+
+      int sum = 0;
+      for(int k = 0; k < size; k++){
+        sum += dist(i, j, points[k]->x, points[k]->y);
+      }
+
+      if(sum < 10000){
+        safe_area_size++;
+      }
+
+    }
+  }
+
   printf("Largest non-infinite area: %d\n", max_size);
+  printf("Safe arean size: %zu\n", safe_area_size);
 
   for(int i = 0; i < x_max; i++){
     free(coords[i]);
