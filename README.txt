@@ -1,1 +1,1 @@
-Advent of code 2018 challenges. First run through in C, mostly a learning experience.
+Advent of code 2018 challenges. A few challenges in C, some python too.
