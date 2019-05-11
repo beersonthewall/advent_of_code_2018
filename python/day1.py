@@ -18,6 +18,7 @@ class day1():
                     return
                 seen.add(sum)
 
+
 one = day1("input/day1_input.txt")
 one.solve_part1()
 one.solve_part2()
